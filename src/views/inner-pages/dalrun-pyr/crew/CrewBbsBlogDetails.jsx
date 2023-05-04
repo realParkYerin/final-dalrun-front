@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import BlogComment from "../../../../components/blog/BlogComment";
 import BlogCommentForm from "../../../../components/blog/BlogCommentForm";
@@ -10,8 +10,89 @@ import Footer from "../../../../components/footer/Footer";
 import Header from "../../../../components/dalrun-pyr/Header";
 import ImageGridTwo from "../../../../components/image-grid/ImageGridTwo";
 import SocialFour from "../../../../components/social/SocialFour";
+import { useState } from "react";
+import { useEffect } from "react";
+import axios from 'axios';
 
 const CrewBbsBlogDetails = () => {
+let history = useNavigate();
+
+  let crewBbsParams = useParams();
+  console.log("crewBbsParams : ", crewBbsParams);
+  console.log("crewBbsParams.cBbsSeq : ", crewBbsParams.cBbsSeq);
+
+  const [crewBbsDetails, setCrewBbsDetails]= useState();
+  const [loading, setLoading] = useState(false);
+  const [cBbsSeq, setCBbsSeq] = useState(crewBbsParams.cBbsSeq);
+  const [imgid, setImgId] = useState([]);
+
+//   function getimgstr(){
+//     axios.get("http://localhost:3000/getimgstr", {params: {"cBbsSeq": cBbsSeq /* <- 실제 cBbsSeq값이 들어갈 수 있도록 해야함 */}})
+//     .then( (res) => {
+//         const imgid = res.data.split('/');
+//         alert(imgid);
+//     });
+// }
+
+function getimgstr() {
+  axios.get("http://localhost:3000/getimgstr", {
+      params: {
+        "cBbsSeq": cBbsSeq
+      }
+    })
+    .then((res) => {
+      const imgid = res.data.split('/');
+      setImgId(imgid); //상태 변수 업데이트
+      alert(imgid);
+
+      const firstImg = imgid[0];
+      alert(firstImg);
+    });
+}
+
+  const crewBbsDetailsData = async(cBbsSeq) => {
+    const resp = await axios.get('http://localhost:3000/crewBbsBlogDetail', {params:{"cBbsSeq": cBbsSeq}});
+    console.log("resp.data : ", resp.data);
+
+    //update state with new data
+    setCrewBbsDetails(resp.data);
+    setLoading(true); //rendering
+  }
+
+  useEffect(()=> {
+    crewBbsDetailsData(crewBbsParams.cBbsSeq);
+    getimgstr();
+  }, [crewBbsParams.cBbsSeq])
+
+  if(loading === false){
+    return <div>Loading...</div> //show user - randering 
+  }
+
+  const updateBbs = () => {
+    history("/crewBbsUpdate/" + crewBbsDetails.cBbsSeq);
+}
+
+  const deleteBbs = () => {
+    history("/crewBbsDelete/" + crewBbsDetails.cBbsSeq);
+  }
+
+
+  // login한 id와 작성자 id와 같을 시에는 버튼을 보여줌
+  function UpdateButtonLoad(){
+    let str = localStorage.getItem('login');
+    let login = JSON.parse(str);
+
+    if(login.memId !== crewBbsDetails.memId){
+      return ""
+    }
+    return (
+      <span>
+        &nbsp;<button type="button" onClick={updateBbs} className="btn btn-primary">글 수정</button>
+        &nbsp;<button type="button" onClick={deleteBbs} className="btn btn-primary">글 삭제</button>
+      </span>
+    )
+  }
+
   return (
     <div className="ptf-site-wrapper animsition ptf-is--blog-grid">
       <Helmet>
@@ -29,13 +110,15 @@ const CrewBbsBlogDetails = () => {
               <div className="container-xxl">
                 <h1 className="ptf-single-post__title">
                   {/* 크루명 가져오기 */}
-                  Simple Logo Collections
+                  &lt;{crewBbsDetails.type}&gt;<br></br>{crewBbsDetails.crewName}
                 </h1>
                 <div className="ptf-single-post__meta">
                   {/* 글쓴 회원 아이디 */}
-                  <span className="cat">Inspiration</span>
+                  <span className="cat">{crewBbsDetails.memId}</span>
                   {/* 글 작성일 */}
-                  <span className="date">Dec 7, 2021</span>
+                  <span className="date">{crewBbsDetails.wdate}</span>
+                  {/* 조회수 */}
+                  <span className="date">조회수 : {crewBbsDetails.readcount}</span><br></br>
                 </div>
               </div>
             </header>
@@ -44,14 +127,9 @@ const CrewBbsBlogDetails = () => {
             <div className="ptf-single-post__media">
               <div className="container-xxl">
                 {/* 크루 대표 이미지 -> 글작성시 첨부한 이미지 */}
-                <img
-                  src="assets/img/blog/single-post/post-media-1.png"
-                  alt="blog post"
-                  loading="lazy"
-                />
+                   <img src={"http://localhost:3000/getimg?imgid=" + imgid[0]} alt="blog post" loading="lazy" />
               </div>
             </div>
-
             {/* <!--Post Wrapper--> */}
             <div className="ptf-single-post__wrapper">
               <div className="container-xxl">
@@ -69,7 +147,7 @@ const CrewBbsBlogDetails = () => {
                         <i className="lnil lnil-comments"></i>크루멤버
                       </a>
                       <a className="report" href="#">
-                        <i className="lnil lnil-warning"></i>Report
+                        <i className="lnil lnil-warning"></i>좋아요
                       </a>
                     </div>
 
@@ -77,35 +155,30 @@ const CrewBbsBlogDetails = () => {
                     {/* <span className="has-accent-1">Pavel Murren</span> -> 강조*/}
                     {/* title */}
                     <div className="ptf-single-post__excerpt">
-                      To mark the first UK show of artist Henri Barande, graphic
+                    {crewBbsDetails.title}
+                    {/* <span className="has-accent-1">{crewBbsDetails.title}</span> */}
+                      {/* To mark the first UK show of artist Henri Barande, graphic
                       designer{" "}
                       <span className="has-accent-1">Pavel Murren</span> and
                       German studio Schultzschultz have created The Lodge
-                      Wooden.
+                      Wooden. */}
                     </div>
 
                     {/* <!--Post Content--> */}
                     {/* content */}
                     <div className="ptf-single-post__content">
-                      <p>
-                        Today most people get on average 4 to 6 hours of
-                        exercise every day, and make sure that everything they
-                        put in their mouths is not filled with sugars or
-                        preservatives, but they pay no attention to their mental
-                        health, no vacations, not even the occasional long
-                        weekend. All of this for hopes of one day getting that
-                        big promotion.
-                      </p>
-                      <p>
-                        Coventry is a city with a thousand years of history that
-                        has plenty to offer the visiting tourist. Located in the
-                        heart of Warwickshire.
-                      </p>
-                      {/* <!--Spacer--> */}
+                      {crewBbsDetails.content}
                       <div
                         className="ptf-spacer"
                         style={{ "--ptf-xxl": "5rem", "--ptf-md": "2.5rem" }}
                       ></div>
+                      {/* 이미지 리스트 뿌리기 */}
+                    {/* {imgid.map((img) => (
+                   <img src={"http://localhost:3000/getimg?imgid=" + img} alt="blog post" loading="lazy" />
+                ))} */}
+                   {imgid.map((imgid) => (
+                      <img key={imgid} src={`http://localhost:3000/getimg?imgid=${imgid}`} alt="blog post" loading="lazy" />
+                    ))}
 
                       <ImageGridTwo />
 
@@ -120,6 +193,7 @@ const CrewBbsBlogDetails = () => {
                         ispumgive yourself more. Notre dame at sumeobjective,
                         helpful feedback.
                       </p>
+                      <UpdateButtonLoad />
                       {/* <!--Spacer--> */}
                       <div
                         className="ptf-spacer"
@@ -128,38 +202,6 @@ const CrewBbsBlogDetails = () => {
                           "--ptf-md": "3.125rem",
                         }}
                       ></div>
-                      {/* <!--Twitter Review--> */}
-                      <div className="ptf-twitter-review ptf-twitter-review--style-2">
-                        <div className="ptf-twitter-review__header">
-                          <div className="ptf-twitter-review__avatar">
-                            <img
-                              src="assets/img/root/twitter-avatar.png"
-                              alt="avatar"
-                              loading="lazy"
-                            />
-                          </div>
-                          <div className="ptf-twitter-review__meta">
-                            <h6 className="ptf-twitter-review__author">
-                              Thiago Alcantara
-                            </h6>
-                            <div className="ptf-twitter-review__info">
-                              <a href="#">@thiago.lfc</a> - 15 Dec, 2022
-                            </div>
-                          </div>
-                          <div className="ptf-twitter-review__icon">
-                            <i className="socicon-twitter"></i>
-                          </div>
-                        </div>
-                        <div className="ptf-twitter-review__content">
-                          <p>
-                            <a href="#">@moonex</a> - a studio with passionate,
-                            profressional & full creativity. Much more things
-                            that i’m expect. Really awesome & satisfied, alway
-                            recommended!
-                          </p>
-                        </div>
-                      </div>
-                      {/* <!--Spacer--> */}
                       <div
                         className="ptf-spacer"
                         style={{ "--ptf-xxl": "7.5rem", "--ptf-md": "3.75rem" }}

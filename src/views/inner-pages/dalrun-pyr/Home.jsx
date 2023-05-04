@@ -2,7 +2,6 @@ import React from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from "react-helmet";
-import HeaderDefault from "../../../components/header/HeaderDefault";
 import Header from '../../../components/dalrun-pyr/Header';
 
 // /login은 인증되지 않아도 접근 가능
@@ -27,6 +26,7 @@ export default function Home() {
 
   const handleLogout = () => {
     localStorage.removeItem("login")
+    localStorage.removeItem("memId");
     gotoLogin();
   }
 

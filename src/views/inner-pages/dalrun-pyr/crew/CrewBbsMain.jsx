@@ -8,8 +8,7 @@ import Footer from '../../../../components/footer/Footer';
 import CrewSearchBlog from '../../../../components/dalrun-pyr/crewBbs/CrewSearchBlog';
 import NewsletterTwo from '../../../../components/newsletter/NewsletterTwo';
 import CrewBbsGridContent from '../../../../components/dalrun-pyr/crewBbs/CrewBbsGridSLider';
-import CrewBbsList from '../../../../components/dalrun-pyr/crewBbs/CrewBbsList';
-import CrewBbsClassification from '../../../../components/dalrun-pyr/crewBbs/CrewBbsClassification';
+// import CrewBbsList from '../../../../components/dalrun-pyr/crewBbs/CrewBbsList';
 
 const CrewBbsMain = () => {
   return (
@@ -144,7 +143,7 @@ const CrewBbsMain = () => {
                   >
                     {/* 게시글 list */}
                     <CrewBlogThree />
-                    <CrewBbsList/>
+                    {/* <CrewBbsList/> */}
                   </div>
                 </div>
                 {/* End .ptf-animated-block */}

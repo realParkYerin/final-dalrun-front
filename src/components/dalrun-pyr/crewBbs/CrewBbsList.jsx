@@ -85,11 +85,11 @@ function CrewBbsList(){
   
           <table className="table table-hover table-sm" style={{ width: "1000" }}>
               <colgroup>
-                  <col width="70"/><col width="600"/><col width="100"/><col width="150"/>
+                  <col width="70"/><col width="600"/><col width="100"/><col width="100"/><col width="150"/>
               </colgroup>
               <thead>
                   <tr className="bg-primary" style={{ color: "white" }}>
-                      <th>번호</th><th>제목</th><th>조회수</th><th>작성자</th>
+                      <th>번호</th><th>제목</th><th>모집상태</th><th>조회수</th><th>작성자</th>
                   </tr>
               </thead>
               <tbody>
@@ -115,10 +115,6 @@ function CrewBbsList(){
               nextPageText={"›"}
               onChange={handlePageChange} />
   
-          <div className="my-5 d-flex justify-content-center">
-              <Link className="btn btn-primary" to="/bbswrite">글쓰기</Link>    
-          </div>
-  
         </div>
       )
   }
@@ -131,6 +127,7 @@ function CrewBbsList(){
               {/* <td style={{ textAlign:"left" }}>{getArrow(props.bbs.depth)}{props.bbs.title}</td> */}
               {BbsTitleProc(props)}
   
+              <td>{props.bbs.type}</td>
               <td>{props.bbs.readcount}</td>
               <td>{props.bbs.memId}</td>
           </tr>
@@ -143,7 +140,7 @@ function BbsTitleProc(props){
         return (
             <td style={{ textAlign:"left" }}>
                 {/* {getArrow(props.bbs.depth)}                 */}
-                <Link to={`/bbsdetail/${props.bbs.seq}`}>{props.bbs.title}</Link>                
+                <Link to={`/crewBbsDetail/${props.bbs.seq}`}>{props.bbs.title}</Link>                
             </td>
         );
     }else{

@@ -4,6 +4,7 @@ import axios from "axios";
 
 //import FootSizeSelector from "./FootInfromation";
 import './css/Register.css';
+import { useEffect } from "react";
 
 //프로필 사진 profile
 //발 모양 정보 foot
@@ -19,8 +20,8 @@ function Register(){
     const [phone, setPhone] = useState('');
     const [birth, setBirth] = useState('');
     const [footSize, setFootSize] = useState('');
-    const [imgFile, setImgFile] = useState("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")
-    const imgRef = useRef(); // 파일 선택 창에서 선택된 파일을 가리키는 역할
+    const [imgFile, setImgFile] = useState("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"); //이미지 파일
+    const [previewFile, setPreviewFile] = useState(null);
 
     //이름, 비밀번호, 이름, 이메일, 번호, 생년월일 감지
     // const idChange = (e) => setId(e.target.value);
@@ -33,13 +34,18 @@ function Register(){
      const handleFootSizeChange = (e) => {
         setFootSize(e.target.value);
     }
-    const saveImgFile = () => {
-        const file = imgRef.current.files[0];
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            setImgFile(reader.result);
-        };
+
+    const fileChange = (event) => {
+        alert("file changed");
+        const fileList = event.target.files;
+        let reader = new FileReader();
+        if (fileList !== null){
+            setImgFile(fileList[0]);
+            reader.onload = () =>{
+            setPreviewFile(reader.result);
+        }
+            reader.readAsDataURL(fileList[0]);
+            }
     };
 
     //오류메세지 저장
@@ -145,22 +151,19 @@ function Register(){
              })
     }
 
-      function account(){
-        axios.post("http://localhost:3000/addmember", null, 
-        { params:{'memId':id, 'password':pwd, 'memberName':name,'email':email, 'phone':phone, 'birth':birth,'foot':footSize} })
+    function account(){
+        const fd = new FormData();
+        fd.append("dto", `{"memId": "${id}", "password": "${pwd}", "memberName": "${name}", "email": "${email}", "phone": "${phone}", "birth": "${birth}", "foot": "${footSize}"}`);
+        fd.append("profileImg", imgFile);
+                axios.post("http://localhost:3000/addmember", fd, { 
+            headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    })
             .then(function(res){
                 if(res.data === "YES"){
                     alert('정상적으로 가입되었습니다');
-
-                    // localStorage.setItem("id",id.current.value);
-                    // localStorage.setItem("pwd",pwd.current.value);
-                    // localStorage.setItem("name",name.current.value);
-                    // localStorage.setItem("email",email.current.value);
-                    // localStorage.setItem("phone",phone.current.value);
-                    // localStorage.setItem("birth",birth.current.value);
-                    // localStorage.setItem("footSize",footSize.current.value);
-
-                    gotoLogin()
+                    gotoLogin();
                     console.log('params:', { memId: id, password: pwd, memberName: name, email: email, phone: phone, birth: birth, foot: footSize, profile: imgFile });
                 }
                 else{
@@ -172,6 +175,33 @@ function Register(){
                 alert(err);
             })
     }
+
+    // responseType: 'arraybuffer' - 전송된 데이터를 이진 데이터로 처리
+    //function getImage(){
+        // axios.get('http://localhost:3000/getimage', {params : {memId: id}, responseType: 'arraybuffer'})
+
+        // .then(resp => {
+        //     //응답으로 받은 이진 데이터는 Blob 객체를 생성하여 이미지 데이터를 저장
+        //     const blob = new Blob([resp.data], {type:'image/png'});
+        //     const urlCreator = window.URL || window.webkitURL;
+        //     //URL.createObjectURL() 메소드를 사용하여 해당 Blob 객체의 URL을 생성
+        //     imgFile = urlCreator.createObjectURL(blob);
+        // })
+        // .catch(error => {
+        //     console.log(error);
+        // });
+    //};
+
+    // useEffect(() => {
+    //     axios.get('http://localhost:3000/getimage', {params : {id: id}, responseType: 'arraybuffer' })
+    //       .then(res => {
+    //         const imageBlob = new Blob([res.data], { type: res.headers['content-type'] });
+    //         const imageUrl = URL.createObjectURL(imageBlob);
+    //         setImgFile(imageUrl);
+    //       })
+    //       .catch(err => console.error(err));
+    //   }, [id]);
+  
 
     return (
         <div id="content">
@@ -187,21 +217,20 @@ function Register(){
                                     style={{margin:'20px'}} 
                                     size={200} 
                                     onClick={()=>{fileInput.current.click()}}/> */}
-                                     <label className="signup-profileImg-label" htmlFor="profileImg">프로필 이미지</label>
+                                     <label className="signup-profileImg-label">프로필 이미지</label>
 
                                         {/* // 업로드 된 이미지 미리보기 */}
                                         <img
-                                        src={imgFile ? imgFile :`/images/icon/user.png`}
+                                        // src={imgFile ? imgFile :`/images/icon/user.png`}
+                                        src={previewFile ? previewFile :imgFile}
                                         alt="프로필 이미지"
                                         />
-
                                         {/* // 이미지 업로드 input */}
                                         <input
                                         type="file"
                                         accept="image/*"
                                         id="profileImg"
-                                        onChange={saveImgFile}
-                                        ref={imgRef}
+                                        onChange={fileChange}
                                         />
 
                                     <label for="id"></label>

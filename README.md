@@ -29,6 +29,24 @@
 - DB : MySQL
 - Server : Apache
 
+  ## 🔭 ERD
+<img src='https://github.com/XCEVOR/final-dalrun-back/assets/97342269/2cf6100b-70ea-4cc1-9878-e23ba6aaa54b' width=500px text-align='center' />
+
+<br>
+<br>
+
+## 📌 순서 및 구성도
+#### 1. 순서도
+<img src='https://github.com/XCEVOR/final-dalrun-back/assets/97342269/27631e88-60e9-48ef-afbf-fdbb30cb5308' width=400px text-align='center' />
+
+<br>
+
+#### 2. 구성도
+<img src='https://github.com/XCEVOR/final-dalrun-back/assets/97342269/5a344ea3-0bd9-4fb3-8a6c-65949895b60e' width=400px text-align='center' />
+
+<br>
+<br>
+
 ## 📚 주요 기능
 #### 1. 도트맵 
 - 크루 혹은 개인이 땅을 구매할 수 있는 페이지 
